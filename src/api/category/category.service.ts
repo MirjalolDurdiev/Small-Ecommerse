@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { BaseService } from 'src/infrastructure/lib/baseService/baseService';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -16,5 +16,20 @@ export class CategoryService extends BaseService<
     @InjectRepository(CategoryEntity) repository: CategoryRepository,
   ) {
     super(repository, 'category');
+  }
+
+  async create(createCategoryDto: CreateCategoryDto) {
+    const existingCategory = await this.repository.findOne({
+      where: { name: createCategoryDto.name },
+    });
+
+    if (existingCategory) {
+      throw new BadRequestException(
+        'Category with this name is already exists',
+      );
+    }
+    const newCategory = this.repository.create(createCategoryDto);
+    await this.repository.save(newCategory);
+    return newCategory;
   }
 }

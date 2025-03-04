@@ -20,8 +20,6 @@ import { RolesGuard } from '../auth/roles/roles.guard';
 import { RolesDecorator } from '../auth/decorator';
 import { Roles } from 'src/common/database/enum';
 
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -32,18 +30,22 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @RolesDecorator(Roles.ADMIN)
   @Get()
   findAll(@Req() req: Request) {
     return this.userService.findAll();
   }
-
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @RolesDecorator(Roles.ADMIN, Roles.USER)
   @Get(':id')
   findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(id);
   }
-
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @RolesDecorator(Roles.USER)
   @Patch(':id')
   update(
@@ -53,7 +55,8 @@ export class UserController {
   ) {
     return this.userService.update(id, updateUserDto);
   }
-
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @RolesDecorator(Roles.ADMIN, Roles.USER)
   @Delete(':id')
   remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {

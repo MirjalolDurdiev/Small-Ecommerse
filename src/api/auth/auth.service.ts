@@ -58,18 +58,20 @@ export class AuthService {
   async login(username: string, password: string) {
     try {
       const user = await this.userRepository.findOne({ where: { username } });
-
       console.log({
         isEqual: await bcrypt.compare(password, user?.password),
         password,
         userPassword: user?.password,
       });
-      console.log({ user });
       if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      const payload = { sub: user.id, username: user.username };
+      const payload = {
+        sub: user.id,
+        username: user.username,
+        role: user.role,
+      };
       const accessToken = this.jwtService.sign(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
         expiresIn: '3h',
@@ -104,7 +106,7 @@ export class AuthService {
       }
 
       const newAccessToken = this.jwtService.sign(
-        { sub: user.id, username: user.username },
+        { sub: user.id, username: user.username, role: user.role },
         { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '15m' },
       );
 
